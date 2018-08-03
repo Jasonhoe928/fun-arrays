@@ -7,6 +7,15 @@ var dataset = require('./dataset.json');
 */
 var hundredThousandairs = null;
 
+
+let balance = dataset.bankBalances;
+const highAmounts = balance.filter(obj => {
+  return obj.amount > 100000;
+});
+hundredThousandairs = highAmounts;
+
+console.log(dataset.bankBalances.amount);
+
 /*
   DO NOT MUTATE DATA.
 
@@ -25,6 +34,22 @@ var hundredThousandairs = null;
   assign the resulting new array to `datasetWithRoundedDollar`
 */
 var datasetWithRoundedDollar = null;
+
+const newObj = balance.map(account => {
+  let round = 0;
+  if(account.amount >= Math.floor(account.amount) + .5) {
+    round = Math.ceil(account.amount)
+  } else {
+    round = Math.floor(account.amount)
+  }
+  return {
+    'amount': account.amount,
+    'state': account.state,
+    'rounded': round
+  }
+})
+
+datasetWithRoundedDollar = newObj;
 
 /*
   DO NOT MUTATE DATA.
@@ -51,15 +76,37 @@ var datasetWithRoundedDollar = null;
 */
 var datasetWithRoundedDime = null;
 
+const newObj2 = balance.map(account => {
+  let round = 0;
+  if(account.amount * 10 >= Math.floor(account.amount * 10) + .5) {
+    round = Math.ceil(account.amount * 10)
+  } else {
+    round = Math.floor(account.amount * 10)
+  }
+  let newRound = round/10
+  return {
+    'amount': account.amount,
+    'state': account.state,
+    'roundedDime': newRound
+  }
+})
+datasetWithRoundedDime = newObj2;
+
 // set sumOfBankBalances to be the sum of all value held at `amount` for each bank object
 var sumOfBankBalances = null;
+
+let total = balance.reduce((accum, next) => {
+  return Math.round( (accum + Number(next.amount) ) * 100)/100
+  console.log(next)
+}, 0)
+sumOfBankBalances = total;
 
 /*
   from each of the following states:
     Wisconsin
     Illinois
     Wyoming
-    Ohio
+    Ohios
     Georgia
     Delaware
   take each `amount` and add 18.9% interest to it rounded to the nearest cent
@@ -164,3 +211,45 @@ module.exports = {
   areStatesInHigherStateSum : areStatesInHigherStateSum,
   anyStatesInHigherStateSum : anyStatesInHigherStateSum
 };
+
+
+// const smile = require("baseem");
+
+// const arr = [1, 2, 3, 4, 5, 6, 8];
+
+// arr.forEach(number => {
+//   console.log(number);
+//   return number;
+// });
+
+// const myMappedArray = arr.map(number => {
+//   console.log(number);
+//   return number * 2;
+// });
+
+// const filtered = arr.filter(item => {
+//   return item % 2;
+// });
+// console.log("filtered", filtered);
+// const added = arr.reduce((acc, next) => {
+//   console.log("prev", acc);
+//   console.log("next", next);
+//   if (next === 3) {
+//     return acc;
+//   }
+//   return [...acc, next * 2];
+// }, []);
+// console.log("reduced", added);
+
+// const chained = arr
+//   .map(num => {
+//     return num * 2;
+//   })
+//   .filter(num => {
+//     return num < 10;
+//   })
+//   .reduce((accum, next) => {
+//     return accum + next;
+//   });
+
+// console.log("chained", chained);

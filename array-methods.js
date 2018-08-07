@@ -9,12 +9,11 @@ var hundredThousandairs = null;
 
 
 let balance = dataset.bankBalances;
-const highAmounts = balance.filter(obj => {
+hundredThousandairs = balance.filter(obj => {
   return obj.amount > 100000;
 });
-hundredThousandairs = highAmounts;
 
-console.log(dataset.bankBalances.amount);
+// console.log(dataset.bankBalances.amount);
 
 /*
   DO NOT MUTATE DATA.
@@ -35,7 +34,8 @@ console.log(dataset.bankBalances.amount);
 */
 var datasetWithRoundedDollar = null;
 
-const newObj = balance.map(account => {
+datasetWithRoundedDollar = balance.map(account => {
+  // console.log('account', account);
   let round = 0;
   if(account.amount >= Math.floor(account.amount) + .5) {
     round = Math.ceil(account.amount)
@@ -49,7 +49,7 @@ const newObj = balance.map(account => {
   }
 })
 
-datasetWithRoundedDollar = newObj;
+
 
 /*
   DO NOT MUTATE DATA.
@@ -76,7 +76,7 @@ datasetWithRoundedDollar = newObj;
 */
 var datasetWithRoundedDime = null;
 
-const newObj2 = balance.map(account => {
+datasetWithRoundedDime = balance.map(account => {
   let round = 0;
   if(account.amount * 10 >= Math.floor(account.amount * 10) + .5) {
     round = Math.ceil(account.amount * 10)
@@ -90,16 +90,15 @@ const newObj2 = balance.map(account => {
     'roundedDime': newRound
   }
 })
-datasetWithRoundedDime = newObj2;
+
 
 // set sumOfBankBalances to be the sum of all value held at `amount` for each bank object
 var sumOfBankBalances = null;
 
-let total = balance.reduce((accum, next) => {
+sumOfBankBalances = balance.reduce((accum, next) => {
   return Math.round( (accum + Number(next.amount) ) * 100)/100
-  console.log(next)
+  // console.log(next)
 }, 0)
-sumOfBankBalances = total;
 
 /*
   from each of the following states:
@@ -113,7 +112,24 @@ sumOfBankBalances = total;
   and then sum it all up into one value saved to `sumOfInterests`
  */
 var sumOfInterests = null;
+// sumOfInterests = balance.filter(obj => {
+//   if(obj.state === 'WI' || obj.state === 'IL' || obj.state === 'WY' || obj.state === 'OH' || obj.state === 'GA' || obj.state === 'DE') {
+//   return Math.round((obj.amount * .189) * 100) / 100;
+//   }
+// }).reduce((accum, next) => {
+//     return Math.round(accum + Number(next.amount * .189) * 100) / 100;
+// }, 0)
 
+sumOfInterests = balance.filter(obj => {
+  if (obj.state === 'WI' || obj.state === 'IL' || obj.state === 'WY' || obj.state === 'OH' || obj.state === 'GA' || obj.state === 'DE') {
+    // console.log('obj.state', obj.state);
+    // console.log('obj.amount', obj.amount);
+    // console.log(obj.amount*0.189);
+    return Math.round((obj.amount * .189)*100)/100
+  }
+ }).reduce((accum, next) => {
+  return Math.round((accum + Number(next.amount*.189))*100)/100;
+ },0)
 /*
   aggregate the sum of bankBalance amounts
   grouped by state
@@ -130,7 +146,19 @@ var sumOfInterests = null;
     round this number to the nearest 10th of a cent before moving on.
   )
  */
-var stateSums = null;
+var stateSums = {};
+
+
+ const addStates = balance.map( item => {
+  //  console.log(item.state)
+   if (!stateSums.hasOwnProperty(item.state)) {
+     stateSums[item.state] = (Math.round(Number(item.amount) * 100))/100;
+   } else {
+     stateSums[item.state] = (Math.round((stateSums[item.state] + Number(item.amount)) * 100))/ 100;
+   }
+ })
+
+
 
 /*
   for all states *NOT* in the following states:
@@ -151,12 +179,54 @@ var stateSums = null;
  */
 var sumOfHighInterests = null;
 
+let stateSum = balance.filter(account => {
+  if(account.state !== "WI" && account.state !== "IL" && account.state !== "WY" && account.state !== "OH" && account.state !== "GA" && account.state !== "DE") {
+    return account;
+  }
+})
+// console.log('statesum', stateSum);
+let sumObject = {};
+stateSum.forEach(account => {
+  if(!sumObject.hasOwnProperty(account.state)) {
+    console.log('sumObject', sumObject)
+    sumObject[account.state] = (Math.round(Number(account.amount) * 100))/100;
+  } else {
+    sumObject[account.state] = (Math.round((sumObject[account.state] + Number(account.amount)) * 100))/ 100;
+  }
+})
+
+console.log(sumObject, "WTF IS THIS");
+
+const valueArr = Object.keys(sumObject).map(e =>{ 
+  return sumObject[e];
+})
+
+// let valueArr = [];
+// for(var i in sumObject) {
+//   valueArr.push(sumObject[i])
+// }
+// console.log(valueArr)
+
+let moreThan50k = [];
+const checkInterest = valueArr.forEach(account => {
+  if(account * .189 > 50000) {
+    moreThan50k.push(account);
+  }
+})
+const reduceInterest = moreThan50k.reduce((accum, next) => {
+  return Math.round((accum + (Number(next) * .189)) * 100)/100;
+}, 0)
+
+sumOfHighInterests = reduceInterest;
 /*
   set `lowerSumStates` to be an array of two letter state
   abbreviations of each state where the sum of amounts
   in the state is less than 1,000,000
  */
 var lowerSumStates = null;
+
+
+
 
 /*
   aggregate the sum of each state into one hash table

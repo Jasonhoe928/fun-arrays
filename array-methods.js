@@ -83,7 +83,7 @@ datasetWithRoundedDime = balance.map(account => {
   } else {
     round = Math.floor(account.amount * 10)
   }
-  let newRound = round/10
+  let newRound = round/10 //does newRound get pushed into datasetWithRoundedDime by the for loop part of map?
   return {
     'amount': account.amount,
     'state': account.state,
@@ -96,7 +96,7 @@ datasetWithRoundedDime = balance.map(account => {
 var sumOfBankBalances = null;
 
 sumOfBankBalances = balance.reduce((accum, next) => {
-  return Math.round( (accum + Number(next.amount) ) * 100)/100
+  return Math.round( (accum + Number(next.amount) ) * 100)/100 //why do you need to round? Doesn't specify to.
   // console.log(next)
 }, 0)
 
@@ -125,7 +125,7 @@ sumOfInterests = balance.filter(obj => {
     // console.log('obj.state', obj.state);
     // console.log('obj.amount', obj.amount);
     // console.log(obj.amount*0.189);
-    return Math.round((obj.amount * .189)*100)/100
+    return Math.round((obj.amount * .189)*100)/100 //how does this work with PEMDAS
   }
  }).reduce((accum, next) => {
   return Math.round((accum + Number(next.amount*.189))*100)/100;
@@ -149,7 +149,7 @@ sumOfInterests = balance.filter(obj => {
 var stateSums = {};
 
 
- const addStates = balance.map( item => {
+balance.map( item => {
   //  console.log(item.state)
    if (!stateSums.hasOwnProperty(item.state)) {
      stateSums[item.state] = (Math.round(Number(item.amount) * 100))/100;
@@ -157,7 +157,7 @@ var stateSums = {};
      stateSums[item.state] = (Math.round((stateSums[item.state] + Number(item.amount)) * 100))/ 100;
    }
  })
-
+// console.log('stateSums', stateSums)
 
 
 /*
@@ -186,18 +186,17 @@ let stateSum = balance.filter(account => {
 })
 // console.log('statesum', stateSum);
 let sumObject = {};
-stateSum.forEach(account => {
+stateSum.map(account => {
   if(!sumObject.hasOwnProperty(account.state)) {
-    console.log('sumObject', sumObject)
+    // console.log('sumObject', sumObject)
     sumObject[account.state] = (Math.round(Number(account.amount) * 100))/100;
   } else {
     sumObject[account.state] = (Math.round((sumObject[account.state] + Number(account.amount)) * 100))/ 100;
   }
 })
 
-console.log(sumObject, "WTF IS THIS");
 
-const valueArr = Object.keys(sumObject).map(e =>{ 
+const valueArr = Object.keys(sumObject).map(e =>{ //found on stackOverflow since Object.values didn't work
   return sumObject[e];
 })
 
@@ -208,7 +207,7 @@ const valueArr = Object.keys(sumObject).map(e =>{
 // console.log(valueArr)
 
 let moreThan50k = [];
-const checkInterest = valueArr.forEach(account => {
+valueArr.forEach(account => {
   if(account * .189 > 50000) {
     moreThan50k.push(account);
   }
@@ -225,8 +224,20 @@ sumOfHighInterests = reduceInterest;
  */
 var lowerSumStates = null;
 
-
-
+let keyVal = Object.keys(stateSums).map(key => {
+  return {
+    'state': key, //state abbreviation
+    'amount': stateSums[key] //sum value of specific key at abbreviated state
+  }
+})
+.filter(account => {
+  return account.amount < 1000000;
+})
+.map(account => {
+  return account.state;
+})
+lowerSumStates = keyVal;
+ console.log('keyval', keyVal)
 
 /*
   aggregate the sum of each state into one hash table
@@ -234,6 +245,21 @@ var lowerSumStates = null;
  */
 var higherStateSums = null;
 
+higherStateSums = Object.keys(stateSums).map(key => {
+  return {
+    'state': key,
+    'amount': stateSums[key]
+  }
+})
+.filter(account => {
+  return account.amount > 1000000;
+})
+.map(account => {
+  return account.amount;
+})
+.reduce((accum, next) => {
+  return Math.round((accum + Number(next)) * 100) / 100;
+})
 /*
   from each of the following states:
     Wisconsin
@@ -249,7 +275,53 @@ var higherStateSums = null;
   if true set `areStatesInHigherStateSum` to `true`
   otherwise set it to `false`
  */
+
+
+
+
 var areStatesInHigherStateSum = null;
+
+const stateFilter = balance.filter(item => {
+  if (item.state === "WI" || item.state === "IL" || item.state === "WY" || item.state === "OH" || item.state === "GA" || item.state === "DE") {
+    return item;
+  }
+});
+let highMillions = {};
+stateFilter.forEach(item => {
+  if (!highMillions.hasOwnProperty(item.state)) {
+    highMillions[item.state] = (Math.round(Number(item.amount)*100))/100;
+  } else {
+    highMillions[item.state] = (Math.round((highMillions[item.state] + Number(item.amount))*100))/100; //why add both numbers before round? Isn't highMillions[item.state] already rounded?
+  }
+})
+const keyValHigher = Object.keys(highMillions).map(key => {
+  return {
+    "state": key,
+    "amount": highMillions[key]
+  }
+})
+console.log('keyValHigher', keyValHigher)
+let trueOrFalse;
+keyValHigher.map(item => {
+  if (trueOrFalse === false) {
+    return item;
+  } else {
+    if (item.amount > 2550000) {
+      trueOrFalse = true;
+      return item;
+    } else {
+      trueOrFalse = false;
+      return item;
+    }
+  }
+}).reduce((item,add) => {
+  return (Math.round((item + add)*100))/100;
+},0)
+areStatesInHigherStateSum = trueOrFalse;
+
+
+
+
 
 /*
   Stretch Goal && Final Boss
